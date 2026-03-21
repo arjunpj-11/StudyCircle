@@ -293,29 +293,64 @@ export default function StudentGroupsPage() {
                   {/* Members */}
                   <div style={{ padding: "14px 20px", display: "flex", flexDirection: "column", gap: 7 }}>
                     {group.members.map((m) => {
-                      const isYou = q && m.name.toLowerCase().includes(q);
+                      const isYou         = q && m.name.toLowerCase().includes(q);
+                      // coordinatorId is an ObjectId stored as string after JSON serialisation
+                      const isCoordinator = group.coordinatorId &&
+                        m.studentId?.toString() === group.coordinatorId?.toString();
+
                       return (
                         <div key={m.studentId} style={{
                           display: "flex", alignItems: "center", gap: 10,
                           padding: "9px 11px", borderRadius: 9,
-                          background: isYou ? "#fde8d8" : "var(--paper)",
+                          background: isYou ? "#fde8d8" : isCoordinator ? "#eef6ff" : "var(--paper)",
+                          border: isCoordinator ? "1px solid #b8d8f8" : "1px solid transparent",
                         }}>
-                          <div style={{
-                            width: 34, height: 34, borderRadius: "50%",
-                            background: m.color,
-                            display: "flex", alignItems: "center", justifyContent: "center",
-                            fontSize: "0.7rem", fontWeight: 700, color: "white", flexShrink: 0,
-                          }}>
-                            {initials(m.name)}
-                          </div>
-                          <div>
-                            <div style={{ fontSize: "0.875rem", fontWeight: 500 }}>{m.name}</div>
+                          {/* Avatar with coordinator star badge */}
+                          <div style={{ position: "relative", flexShrink: 0 }}>
                             <div style={{
-                              fontSize: "0.67rem",
-                              color: isYou ? "var(--accent)" : "var(--muted)",
-                              fontWeight: isYou ? 700 : 400, marginTop: 1,
+                              width: 34, height: 34, borderRadius: "50%",
+                              background: m.color,
+                              display: "flex", alignItems: "center", justifyContent: "center",
+                              fontSize: "0.7rem", fontWeight: 700, color: "white",
                             }}>
-                              {isYou ? "← That's you!" : m.roll}
+                              {initials(m.name)}
+                            </div>
+                            {isCoordinator && (
+                              <div title="Coordinator" style={{
+                                position: "absolute", bottom: -2, right: -2,
+                                width: 14, height: 14, borderRadius: "50%",
+                                background: "#2979d4", border: "1.5px solid var(--card)",
+                                display: "flex", alignItems: "center", justifyContent: "center",
+                                fontSize: "0.52rem", color: "white", lineHeight: 1,
+                              }}>★</div>
+                            )}
+                          </div>
+
+                          {/* Name + sub-label */}
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{
+                              fontSize: "0.875rem", fontWeight: 500,
+                              display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap",
+                            }}>
+                              {m.name}
+                              {isCoordinator && (
+                                <span style={{
+                                  fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.06em",
+                                  textTransform: "uppercase", padding: "1px 6px", borderRadius: 10,
+                                  background: "#d0e8ff", color: "#1a5fa8",
+                                }}>Coordinator</span>
+                              )}
+                            </div>
+                            <div style={{
+                              fontSize: "0.67rem", marginTop: 1,
+                              color: isYou ? "var(--accent)" : isCoordinator ? "#2979d4" : "var(--muted)",
+                              fontWeight: isYou || isCoordinator ? 700 : 400,
+                            }}>
+                              {isYou
+                                ? "← That's you!"
+                                : isCoordinator
+                                  ? `${m.roll} · leads this group`
+                                  : m.roll}
                             </div>
                           </div>
                         </div>
