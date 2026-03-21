@@ -34,18 +34,35 @@ const NAV = [
   },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ onClose, isMobile }) {
   const { user, logout } = useAuth();
   const emailInitials = (user?.email || "AD").slice(0, 2).toUpperCase();
   const emailName     = (user?.email || "").split("@")[0];
 
   return (
-    <aside className="sidebar">
-      <div className="sidebar-logo">
+    <aside className="sidebar" style={{
+      // On mobile, render at natural height (full viewport via fixed positioning in parent)
+      height: isMobile ? "100vh" : undefined,
+    }}>
+      {/* Logo row — with close button on mobile */}
+      <div className="sidebar-logo" style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
         <div>
           Study<span>Circle</span>
           <div className="sidebar-logo-sub">Admin Panel</div>
         </div>
+        {isMobile && (
+          <button
+            onClick={onClose}
+            aria-label="Close sidebar"
+            style={{
+              background: "none", border: "none", cursor: "pointer",
+              color: "rgba(255,255,255,0.5)", fontSize: "1.4rem",
+              lineHeight: 1, padding: "2px 0", marginTop: 2,
+            }}
+          >
+            ✕
+          </button>
+        )}
       </div>
 
       <nav className="sidebar-nav">
@@ -71,14 +88,14 @@ export default function Sidebar() {
       <div className="sidebar-bottom">
         <div className="admin-chip">
           <div className="admin-av">{emailInitials}</div>
-          <div style={{ flex: 1 }}>
-            <div className="admin-name">{emailName}</div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div className="admin-name" style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{emailName}</div>
             <div className="admin-role">Admin</div>
           </div>
           <button
             onClick={logout}
             title="Logout"
-            style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(255,255,255,0.4)", fontSize: "1.1rem", lineHeight: 1 }}
+            style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(255,255,255,0.4)", fontSize: "1.1rem", lineHeight: 1, flexShrink: 0 }}
           >⏻</button>
         </div>
       </div>
