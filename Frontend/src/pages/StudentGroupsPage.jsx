@@ -294,7 +294,6 @@ export default function StudentGroupsPage() {
                   <div style={{ padding: "14px 20px", display: "flex", flexDirection: "column", gap: 7 }}>
                     {group.members.map((m) => {
                       const isYou         = q && m.name.toLowerCase().includes(q);
-                      // coordinatorId is an ObjectId stored as string after JSON serialisation
                       const isCoordinator = group.coordinatorId &&
                         m.studentId?.toString() === group.coordinatorId?.toString();
 
@@ -341,17 +340,15 @@ export default function StudentGroupsPage() {
                                 }}>Coordinator</span>
                               )}
                             </div>
-                            <div style={{
-                              fontSize: "0.67rem", marginTop: 1,
-                              color: isYou ? "var(--accent)" : isCoordinator ? "#2979d4" : "var(--muted)",
-                              fontWeight: isYou || isCoordinator ? 700 : 400,
-                            }}>
-                              {isYou
-                                ? "← That's you!"
-                                : isCoordinator
-                                  ? `${m.roll} · leads this group`
-                                  : m.roll}
-                            </div>
+                            {(isYou || isCoordinator) && (
+                              <div style={{
+                                fontSize: "0.67rem", marginTop: 1,
+                                color: isYou ? "var(--accent)" : "#2979d4",
+                                fontWeight: 700,
+                              }}>
+                                {isYou ? "← That's you!" : "leads this group"}
+                              </div>
+                            )}
                           </div>
                         </div>
                       );

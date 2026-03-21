@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import {
   apiGetSession, apiSaveSession, apiPublishSession,
   apiGetStudents, apiGetMeetLinks, apiIncrementSessions,
+  apiGetAttendance,
 } from "../api/services";
 import { useToast } from "../hooks/useToast";
 import { todayKey, initials, generateGroupChunks, pickCoordinator, shuffle } from "../utils/helpers";
@@ -10,20 +11,30 @@ export default function GroupsPage() {
   const [session,    setSession]    = useState(null);
   const [students,   setStudents]   = useState([]);
   const [meetLinks,  setMeetLinks]  = useState([]);
+  const [attendance, setAttendance] = useState({});
   const [loading,    setLoading]    = useState(true);
   const { toast, ToastContainer }   = useToast();
   const dateKey = todayKey();
 
   const load = async () => {
     try {
-      const [sess, studs, links] = await Promise.all([
+      const [sess, studs, links, attDoc] = await Promise.all([
         apiGetSession(dateKey).catch(() => null),
         apiGetStudents(),
         apiGetMeetLinks(),
+        apiGetAttendance(dateKey).catch(() => null),
       ]);
       setSession(sess);
       setStudents(studs);
       setMeetLinks(links);
+
+      // Build attendance map
+      const map = {};
+      studs.forEach((s) => {
+        const saved = attDoc?.records?.find((r) => String(r.studentId) === String(s._id));
+        map[s._id] = saved ? saved.status : (s.status === "frozen" ? "F" : "A");
+      });
+      setAttendance(map);
     } catch (err) {
       toast(err.message, "error");
     } finally {
@@ -37,8 +48,11 @@ export default function GroupsPage() {
   const published = session?.published || false;
 
   const handleReshuffle = async () => {
-    const active = students.filter((s) => s.status !== "frozen");
-    if (active.length < 3) { toast("Not enough students.", "error"); return; }
+    // Only include students who are present (not frozen, not absent)
+    const active = students.filter(
+      (s) => s.status !== "frozen" && attendance[s._id] === "P"
+    );
+    if (active.length < 3) { toast("Not enough present students.", "error"); return; }
     const chunks    = generateGroupChunks(active);
     const linkPool  = shuffle([...meetLinks]);
     const newGroups = chunks.map((members, i) => {
