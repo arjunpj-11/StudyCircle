@@ -1,9 +1,8 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
   plugins: [react()],
-  // Allow JSX syntax in .js files (safety net)
   optimizeDeps: {
     esbuildOptions: {
       loader: {
@@ -11,12 +10,15 @@ export default defineConfig({
       },
     },
   },
-  server: {
-    proxy: {
-      "/api": {
-        target: "http://localhost:5001",
-        changeOrigin: true,
+  // Proxy only runs in dev (npm run dev), not in production build
+  ...(command === "serve" && {
+    server: {
+      proxy: {
+        "/api": {
+          target: "http://localhost:5001",
+          changeOrigin: true,
+        },
       },
     },
-  },
-});
+  }),
+}));
