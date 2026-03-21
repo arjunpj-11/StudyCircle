@@ -2,6 +2,8 @@ import { createContext, useContext, useState, useEffect } from "react";
 
 const AuthContext = createContext(null);
 
+const BASE = import.meta.env.VITE_API_URL || "";
+
 export function AuthProvider({ children }) {
   const [user, setUser]       = useState(null);
   const [loading, setLoading] = useState(true);
@@ -16,12 +18,12 @@ export function AuthProvider({ children }) {
   const login = async (email, password) => {
     let res;
     try {
-      res = await fetch("/api/auth/login", {
+      res = await fetch(`${BASE}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
-    } catch (err) {
+    } catch {
       throw new Error("Cannot reach server. Is the backend running?");
     }
 
@@ -32,9 +34,7 @@ export function AuthProvider({ children }) {
       throw new Error("Server returned an invalid response.");
     }
 
-    if (!res.ok) {
-      throw new Error(data?.message || "Invalid email or password.");
-    }
+    if (!res.ok) throw new Error(data?.message || "Invalid email or password.");
 
     localStorage.setItem("sc_token", data.token);
     localStorage.setItem("sc_email", data.email);
