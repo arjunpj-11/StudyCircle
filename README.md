@@ -58,7 +58,7 @@ project-root/
 ⚙️ Installation & Setup
 
 1. Clone the repository
-git clone https://github.com/your-username/your-repo-name.git
+git clone https://github.com/arjunpj-11/studycircle
 cd your-repo-name
 
 2. Setup Backend
