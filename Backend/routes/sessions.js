@@ -27,10 +27,10 @@ router.get("/:dateKey/public", async (req, res) => {
 // PUT /api/sessions/:dateKey  — save/overwrite groups
 router.put("/:dateKey", protect, async (req, res) => {
   try {
-    const { groups, published } = req.body;
+    const { groups, published, groupSize } = req.body;  // ✅ extract groupSize
     const session = await Session.findOneAndUpdate(
       { dateKey: req.params.dateKey },
-      { dateKey: req.params.dateKey, groups, published: published ?? false },
+      { dateKey: req.params.dateKey, groups, published: published ?? false, groupSize: groupSize ?? 3 },  // ✅ save it
       { upsert: true, new: true }
     );
     res.json(session);

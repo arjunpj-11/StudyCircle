@@ -17,10 +17,11 @@ const groupSchema = new mongoose.Schema({
 
 const sessionSchema = new mongoose.Schema(
   {
-    dateKey:     { type: String, required: true, unique: true }, // "YYYY-MM-DD"
+    dateKey:     { type: String, required: true, unique: true },
     groups:      [groupSchema],
     published:   { type: Boolean, default: false },
     publishedAt: { type: Date },
+    groupSize:   { type: Number, default: 3 },  // ✅ added
   },
   { timestamps: true }
 );

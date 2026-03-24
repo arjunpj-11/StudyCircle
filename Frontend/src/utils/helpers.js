@@ -24,19 +24,23 @@ export const shuffle = (arr) => {
   return a;
 };
 
-// Chunks of 3; if remainder===1 merge spare into last group (→4)
-export const generateGroupChunks = (students) => {
+export const generateGroupChunks = (students, groupSize = 3) => {
   const shuffled = shuffle(students);
   const total    = shuffled.length;
-  const rem      = total % 3;
   const chunks   = [];
 
-  if (rem === 1 && total >= 4) {
-    for (let i = 0; i < total - 4; i += 3) chunks.push(shuffled.slice(i, i + 3));
-    chunks.push(shuffled.slice(total - 4));
-  } else {
-    for (let i = 0; i < total; i += 3) chunks.push(shuffled.slice(i, i + 3));
+  let i = 0;
+  while (i < total) {
+    const remaining = total - i;
+    if (remaining - groupSize === 1) {
+      chunks.push(shuffled.slice(i, i + groupSize + 1));
+      i += groupSize + 1;
+    } else {
+      chunks.push(shuffled.slice(i, i + groupSize));
+      i += groupSize;
+    }
   }
+
   return chunks;
 };
 

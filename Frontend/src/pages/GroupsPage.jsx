@@ -27,8 +27,6 @@ export default function GroupsPage() {
       setSession(sess);
       setStudents(studs);
       setMeetLinks(links);
-
-      // Build attendance map
       const map = {};
       studs.forEach((s) => {
         const saved = attDoc?.records?.find((r) => String(r.studentId) === String(s._id));
@@ -44,16 +42,19 @@ export default function GroupsPage() {
 
   useEffect(() => { load(); }, [dateKey]);
 
-  const groups    = session?.groups    || [];
+  const groups    = (session?.groups || []).slice().sort((a, b) => a.id - b.id);
   const published = session?.published || false;
+  const groupSize = session?.groupSize || 3;
 
   const handleReshuffle = async () => {
-    // Only include students who are present (not frozen, not absent)
     const active = students.filter(
       (s) => s.status !== "frozen" && attendance[s._id] === "P"
     );
-    if (active.length < 3) { toast("Not enough present students.", "error"); return; }
-    const chunks    = generateGroupChunks(active);
+    if (active.length < groupSize) {
+      toast(`Need at least ${groupSize} present students.`, "error");
+      return;
+    }
+    const chunks    = generateGroupChunks(active, groupSize);
     const linkPool  = shuffle([...meetLinks]);
     const newGroups = chunks.map((members, i) => {
       const coord = pickCoordinator(members);
@@ -63,11 +64,11 @@ export default function GroupsPage() {
         members:       members.map((m) => ({ studentId: m._id, name: m.name, roll: m.roll, color: m.color })),
         coordinatorId: coord._id,
         meetLink:      link?.url || "https://meet.google.com/",
-        isFour:        members.length === 4,
+        isFour:        members.length === groupSize + 1,
       };
     });
     try {
-      const updated = await apiSaveSession(dateKey, newGroups, false);
+      const updated = await apiSaveSession(dateKey, newGroups, false, groupSize);
       setSession(updated);
       toast("Groups reshuffled!", "success");
     } catch (err) {
@@ -95,12 +96,12 @@ export default function GroupsPage() {
       const sb = students.find((s) => String(s._id) === String(b.studentId));
       return (sa?.coordSessions || 0) - (sb?.coordSessions || 0);
     });
-    const newCoord  = sorted[0];
-    const updated   = groups.map((g) =>
+    const newCoord = sorted[0];
+    const updated  = groups.map((g) =>
       g.id === groupId ? { ...g, coordinatorId: newCoord.studentId } : g
     );
     try {
-      const res = await apiSaveSession(dateKey, updated, published);
+      const res = await apiSaveSession(dateKey, updated, published, groupSize);
       setSession(res);
       toast("Coordinator reassigned.", "info");
     } catch (err) {
@@ -148,7 +149,7 @@ export default function GroupsPage() {
           {groups.length} groups · {groups.reduce((s, g) => s + g.members.length, 0)} students
           {groups.some((g) => g.isFour) && (
             <span style={{ color: "var(--purple)" }}>
-              {" "}· ★ {groups.filter((g) => g.isFour).length} group(s) of 4
+              {" "}· ★ {groups.filter((g) => g.isFour).length} group(s) of {groupSize + 1}
             </span>
           )}
         </span>
@@ -169,7 +170,7 @@ export default function GroupsPage() {
                 <div className="gca-head">
                   <div className="gca-title">
                     Group {group.id}
-                    {group.isFour && <span className="four-badge">★ 4 members</span>}
+                    {group.isFour && <span className="four-badge">★ {groupSize + 1} members</span>}
                   </div>
                   <a href={group.meetLink} target="_blank" rel="noreferrer" className="gca-meet">
                     🔗 {(shortLink || "").slice(0, 26)}…

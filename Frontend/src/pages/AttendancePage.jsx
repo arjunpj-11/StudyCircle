@@ -13,6 +13,7 @@ export default function AttendancePage() {
   const [meetLinks,  setMeetLinks]  = useState([]);
   const [loading,    setLoading]    = useState(true);
   const [isMobile,   setIsMobile]   = useState(false);
+  const [groupSize,  setGroupSize]  = useState(3);
   const { toast, ToastContainer }   = useToast();
   const navigate = useNavigate();
   const dateKey  = todayKey();
@@ -73,8 +74,11 @@ export default function AttendancePage() {
     const present = students.filter(
       (s) => s.status !== "frozen" && attendance[s._id] === "P"
     );
-    if (present.length < 3) { toast("Need at least 3 present students.", "error"); return; }
-    const chunks   = generateGroupChunks(present);
+    if (present.length < groupSize) {
+      toast(`Need at least ${groupSize} present students.`, "error");
+      return;
+    }
+    const chunks   = generateGroupChunks(present, groupSize);
     const linkPool = shuffle([...meetLinks]);
     const groups   = chunks.map((members, i) => {
       const coord = pickCoordinator(members);
@@ -84,11 +88,11 @@ export default function AttendancePage() {
         members:       members.map((m) => ({ studentId: m._id, name: m.name, roll: m.roll, color: m.color })),
         coordinatorId: coord._id,
         meetLink:      link?.url || "https://meet.google.com/",
-        isFour:        members.length === 4,
+        isFour:        members.length === groupSize + 1,
       };
     });
     try {
-      await apiSaveSession(dateKey, groups, false);
+      await apiSaveSession(dateKey, groups, false, groupSize);
       toast(`${groups.length} groups generated!`, "success");
       navigate("/admin/groups");
     } catch (err) {
@@ -98,9 +102,12 @@ export default function AttendancePage() {
 
   if (loading) return <div className="spinner-page"><div className="spinner" /></div>;
 
-  const active  = students.filter((s) => s.status !== "frozen");
-  const present = active.filter((s) => attendance[s._id] === "P");
-  const frozen  = students.filter((s) => s.status === "frozen");
+  const active    = students.filter((s) => s.status !== "frozen");
+  const present   = active.filter((s) => attendance[s._id] === "P");
+  const frozen    = students.filter((s) => s.status === "frozen");
+  const estGroups = present.length >= groupSize
+    ? Math.ceil(present.length / groupSize)
+    : 0;
 
   return (
     <>
@@ -147,15 +154,10 @@ export default function AttendancePage() {
           margin-bottom: 36px;
         }
         @media (max-width: 640px) {
-          .att-grid-responsive {
-            grid-template-columns: 1fr;
-            gap: 8px;
-          }
+          .att-grid-responsive { grid-template-columns: 1fr; gap: 8px; }
         }
         @media (min-width: 641px) and (max-width: 900px) {
-          .att-grid-responsive {
-            grid-template-columns: repeat(2, 1fr);
-          }
+          .att-grid-responsive { grid-template-columns: repeat(2, 1fr); }
         }
         .att-generate-row {
           display: flex;
@@ -166,14 +168,56 @@ export default function AttendancePage() {
           .att-generate-row { justify-content: stretch; }
           .att-generate-row .btn { width: 100%; justify-content: center; }
         }
-        .stat-card-compact .stat-value {
-          font-size: 1.8rem;
-        }
+        .stat-card-compact .stat-value { font-size: 1.8rem; }
         @media (max-width: 480px) {
           .stat-card-compact { padding: 14px 16px; }
           .stat-card-compact .stat-value { font-size: 1.5rem; }
           .stat-card-compact .stat-label { font-size: 0.6rem; }
           .stat-card-compact .stat-sub   { font-size: 0.65rem; }
+        }
+        .group-size-bar {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          margin-bottom: 16px;
+          padding: 14px 18px;
+          background: var(--card);
+          border: 1px solid var(--border);
+          border-radius: var(--radius);
+          flex-wrap: wrap;
+        }
+        .group-size-label {
+          font-size: 0.82rem;
+          font-weight: 600;
+          color: var(--muted);
+          white-space: nowrap;
+        }
+        .group-size-btns { display: flex; gap: 8px; }
+        .group-size-btn {
+          width: 38px;
+          height: 38px;
+          border-radius: 50%;
+          border: 1.5px solid var(--border);
+          background: var(--paper);
+          color: var(--ink);
+          font-weight: 700;
+          font-size: 0.88rem;
+          cursor: pointer;
+          transition: all 0.15s;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .group-size-btn:hover { border-color: var(--ink); }
+        .group-size-btn.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+        .group-size-preview {
+          font-size: 0.78rem;
+          color: var(--muted);
+          margin-left: auto;
+        }
+        .group-size-preview strong { color: var(--ink); }
+        @media (max-width: 640px) {
+          .group-size-preview { margin-left: 0; width: 100%; }
         }
       `}</style>
 
@@ -233,6 +277,34 @@ export default function AttendancePage() {
             </div>
           );
         })}
+      </div>
+
+      {/* Group Size Picker */}
+      <div className="group-size-bar">
+        <span className="group-size-label">Members per group:</span>
+        <div className="group-size-btns">
+          {[2, 3, 4, 5].map((n) => (
+            <button
+              key={n}
+              className={`group-size-btn ${groupSize === n ? "active" : ""}`}
+              onClick={() => setGroupSize(n)}
+            >
+              {n}
+            </button>
+          ))}
+        </div>
+        <div className="group-size-preview">
+          {present.length === 0 ? (
+            "Mark students present to see a preview"
+          ) : present.length < groupSize ? (
+            <>Need at least <strong>{groupSize}</strong> present students</>
+          ) : (
+            <>
+              <strong>{present.length}</strong> present →{" "}
+              <strong>~{estGroups} group{estGroups !== 1 ? "s" : ""}</strong> of ~{groupSize}
+            </>
+          )}
+        </div>
       </div>
 
       {/* Generate button */}

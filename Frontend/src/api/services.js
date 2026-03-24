@@ -40,10 +40,11 @@ export const apiGetAllAttendance  = ()                 => request("/api/attendan
 export const apiSaveAttendance    = (dateKey, records) => request(`/api/attendance/${dateKey}`, { method: "PUT", body: JSON.stringify({ records }) });
 
 /* ── SESSIONS ── */
-export const apiGetSession        = (dateKey)                    => request(`/api/sessions/${dateKey}`);
-export const apiGetPublicSession  = (dateKey)                    => request(`/api/sessions/${dateKey}/public`);
-export const apiSaveSession       = (dateKey, groups, published = false) => request(`/api/sessions/${dateKey}`, { method: "PUT", body: JSON.stringify({ groups, published }) });
-export const apiPublishSession    = (dateKey)                    => request(`/api/sessions/${dateKey}/publish`, { method: "PATCH" });
+export const apiGetSession        = (dateKey)                => request(`/api/sessions/${dateKey}`);
+export const apiGetPublicSession  = (dateKey)                => request(`/api/sessions/${dateKey}/public`);
+export const apiSaveSession       = (dateKey, groups, published = false, groupSize = 3) =>
+  request(`/api/sessions/${dateKey}`, { method: "PUT", body: JSON.stringify({ groups, published, groupSize }) });
+export const apiPublishSession    = (dateKey)                => request(`/api/sessions/${dateKey}/publish`, { method: "PATCH" });
 
 /* ── MEET LINKS ── */
 export const apiGetMeetLinks      = ()    => request("/api/meetlinks");
