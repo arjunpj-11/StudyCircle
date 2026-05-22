@@ -1,104 +1,128 @@
-📢 Communication Session Group Manager
+# 📢 Communication Session Group Manager
 
-A web application built to improve communication sessions by ensuring every participant gets meaningful speaking time.
+A web application that restructures communication sessions to ensure every participant gets meaningful speaking time — not just 2–3 minutes.
 
+---
 
-
-🚀 Problem Statement
+## 🚩 The Problem
 
 In traditional communication sessions:
 
-Each session lasts ~1 hour
-Every participant gets only 2–3 minutes to speak
-Most students don’t get enough time to improve their communication skills
-💡 Solution
+- Each session lasts ~1 hour
+- Every participant gets only **2–3 minutes** to speak
+- Most students don't get enough practice to actually improve
 
-This application restructures sessions by:
+---
 
-Automatically dividing participants into small groups of 3
-Assigning each group a dedicated Google Meet link
-Ensuring each participant gets ~15 minutes of speaking time
+## 💡 The Solution
 
+This app restructures sessions by:
 
-🧠 How It Works
+- ✅ Dividing participants into **small groups of 3**
+- ✅ Assigning each group a **dedicated Google Meet link**
+- ✅ Giving each participant **~15 minutes** of speaking time
 
-👨‍🏫 Admin Side
-Add students
-Mark attendance
-Generate random groups (3 members per group)
-Assign Google Meet links
-Publish groups to users
+---
 
-👨‍🎓 User Side
-No login required
-View assigned group
-Access Google Meet link directly
+## 🧠 How It Works
 
+### 👨‍🏫 Admin
+1. Add students
+2. Mark attendance
+3. Generate random groups (3 members each)
+4. Assign Google Meet links
+5. Publish groups for users to view
 
-🛠️ Tech Stack
+### 👨‍🎓 User
+1. Open the app — no login required
+2. View assigned group
+3. Click the Google Meet link and join
 
-Frontend
-React (Vite)
+---
 
-Backend
-Node.js
-Express.js
+## 🛠️ Tech Stack
 
-Database
-MongoDB
+| Layer | Technology |
+|-------|-----------|
+| Frontend | React (Vite) |
+| Backend | Node.js, Express.js |
+| Database | MongoDB |
 
-📁 Project Structure
+---
+
+## 📁 Project Structure
+
+```
 project-root/
-│
-├── Frontend/        # React frontend
-├── Backend/        # Node.js backend
-├── README.md
+├── Frontend/    # React (Vite) frontend
+├── Backend/     # Node.js + Express backend
+└── README.md
+```
 
+---
 
-⚙️ Installation & Setup
+## ⚙️ Installation & Setup
 
-1. Clone the repository
+### 1. Clone the repository
+```bash
 git clone https://github.com/arjunpj-11/studycircle
-cd your-repo-name
+cd studycircle
+```
 
-2. Setup Backend
-cd server
+### 2. Setup backend
+```bash
+cd Backend
 npm install
 npm run dev
+```
 
-3. Setup Frontend
-cd client
+### 3. Setup frontend
+```bash
+cd Frontend
 npm install
 npm run dev
-🌐 Environment Variables
+```
 
-Create a .env file in the server folder:
+### 4. Configure environment variables
 
+Create a `.env` file in the `Backend` folder:
+
+```env
 MONGO_URI=your_mongodb_connection_string
 PORT=5000
-✨ Features
-🎯 Random group generation
-📊 Attendance tracking
-🔗 Google Meet integration
-⚡ Fast and simple UI
-🔓 No authentication required for users
-📸 Screenshots (Optional)
+```
 
-Add screenshots here if you have them
+---
 
-🔮 Future Improvements
-Add authentication (Admin/User roles)
-Real-time updates using WebSockets
-Email/WhatsApp notifications for group links
-Session history tracking
-🤝 Contributing
+## ✨ Features
 
-Feel free to fork this repo and improve it!
+- 🎯 Random group generation (3 per group)
+- 📊 Attendance tracking
+- 🔗 Google Meet link integration
+- ⚡ Fast and minimal UI
+- 🔓 No login required for users
 
-📜 License
+---
 
-This project is open-source and available under the MIT License.
+## 🔮 Future Improvements
 
-🙌 Acknowledgment
+- [ ] Admin & user authentication
+- [ ] Real-time updates via WebSockets
+- [ ] Email / WhatsApp notifications for group links
+- [ ] Session history tracking
 
-Built to improve real-world communication sessions and ensure equal participation for everyone.
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Feel free to fork and improve this project.
+
+---
+
+## 📜 License
+
+This project is open-source under the [MIT License](LICENSE).
+
+---
+
+> 💬 Built to solve a real problem — ensuring equal speaking time and better communication practice for everyone in a session.
