@@ -1,3 +1,5 @@
+![StudyCircle Preview](./previewimage.jpeg)
+
 # 📢 Communication Session Group Manager
 
 A web application that restructures communication sessions to ensure every participant gets meaningful speaking time — not just 2–3 minutes.
