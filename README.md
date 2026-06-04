@@ -1,4 +1,4 @@
-![StudyCircle Preview](./previewimage.jpeg)
+![StudyCircle Preview](./social-preview.jpeg)
 
 # 📢 Communication Session Group Manager
 
