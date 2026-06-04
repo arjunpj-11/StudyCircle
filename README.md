@@ -65,8 +65,8 @@ project-root/
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/arjunpj-11/studycircle
-cd studycircle
+git clone https://github.com/arjunpj-11/StudyCircle
+cd StudyCircle
 ```
 
 ### 2. Setup backend
